@@ -1,0 +1,33 @@
+//
+//  EventsListInteractor.swift
+//  CodingChallenge
+//
+//  Created by Amr Mohamed on 03/03/2022.
+//
+
+import Foundation
+
+class EventsListInteractor: EventsListInteractorInputProtocol {
+    var presenter: EventsListInteractorOutputProtocol?
+    
+    var APIDataManager: EventsListAPIDataManagerProtocol?
+    
+    var localDatamanager: EventsListLocalDataManagerProtocol?
+    
+    var events: [Event]?
+    
+    func getEventsList(searchQuery: String) {
+        APIDataManager?.getEvents(searchQuery: searchQuery, completionHandler: { [weak self] events in
+            self?.events = events
+            self?.presenter?.eventsLoaded()
+            self?.presenter?.hideLoader()
+        }, faildHandler: { [weak self] status in
+            self?.presenter?.showErrorMessage(message: status?.message ?? "")
+            self?.presenter?.hideLoader()
+        })
+    }
+    
+    func isEventInFavourites(eventId: Int) -> Bool {
+        return localDatamanager?.isEventInFavourites(eventId: eventId) ?? false
+    }
+}
